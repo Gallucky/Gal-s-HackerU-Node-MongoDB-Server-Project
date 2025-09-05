@@ -31,7 +31,7 @@ const CardsSchema = new mongoose.Schema({
     },
     createdAt: CREATED_AT,
     user_id: {
-        type: mongoose.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
     },
     likes: [String],
 });

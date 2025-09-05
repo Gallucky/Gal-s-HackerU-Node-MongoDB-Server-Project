@@ -9,9 +9,12 @@ const {
 } = require("../models/cardsDataAccessService");
 const validateCard = require("../validations/cardValidationService");
 const normalizeCard = require("../helpers/normalizeCard");
+const { handleJoiError } = require("../../utils/handleErrors");
 
-// Lesson 7 - Exercise 3 //
+//region | ====== Get ====== |
 
+// Get all cards route.
+// Access / Authorization - All.
 exports.getCards = async () => {
     try {
         const cards = await find();
@@ -21,6 +24,8 @@ exports.getCards = async () => {
     }
 };
 
+// Getting all cards created by the requested user route.
+// Access / Authorization - The registered user.
 exports.getMyCards = async (userId) => {
     try {
         const card = await findMyCards(userId);
@@ -30,6 +35,8 @@ exports.getMyCards = async (userId) => {
     }
 };
 
+// Getting a specific card route.
+// Access / Authorization - All.
 exports.getCard = async (cardId) => {
     try {
         const card = await findOne(cardId);
@@ -39,15 +46,18 @@ exports.getCard = async (cardId) => {
     }
 };
 
-exports.createCard = async (rawCard) => {
+//endregion | ====== Get ====== |
+
+//region | ====== Post ====== |
+
+// Creating a card route.
+// Access / Authorization - Business accounts.
+exports.createCard = async (rawCard, userId) => {
     try {
         const { error } = validateCard(rawCard);
+        if (error) return handleJoiError(error);
 
-        if (error) {
-            return Promise.reject(error);
-        }
-
-        let card = await normalizeCard(rawCard);
+        let card = await normalizeCard(rawCard, userId);
         card = create(card);
 
         return Promise.resolve(card);
@@ -56,17 +66,28 @@ exports.createCard = async (rawCard) => {
     }
 };
 
-// Lesson 7 - Exercise 4 //
+//endregion | ====== Post ====== |
+
+//region | ====== Put ====== |
+
+// Update card route.
+// Access / Authorization: The user that created the card.
 exports.updateCard = async (cardId, rawCard) => {
+    const { error } = validateCard(rawCard);
+    if (error) return handleJoiError(error);
+
     try {
-        let card = { ...rawCard };
-        card = await normalizeCard(card);
+        let card = await normalizeCard(rawCard);
         card = await update(cardId, card);
         return Promise.resolve(card);
     } catch (error) {
         return Promise.reject(error);
     }
 };
+
+//endregion | ====== Put ====== |
+
+//region | ====== Patch ====== |
 
 exports.likeCard = async (cardId, userID) => {
     try {
@@ -77,6 +98,10 @@ exports.likeCard = async (cardId, userID) => {
     }
 };
 
+//endregion | ====== Patch ====== |
+
+//region | ====== Delete ====== |
+
 exports.deleteCard = async (id) => {
     try {
         const card = await remove(id);
@@ -85,3 +110,5 @@ exports.deleteCard = async (id) => {
         return Promise.reject(error);
     }
 };
+
+//endregion | ====== Delete ====== |

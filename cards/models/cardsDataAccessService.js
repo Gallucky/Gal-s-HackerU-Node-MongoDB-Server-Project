@@ -3,8 +3,10 @@ const Card = require("./mongodb/Card");
 const config = require("config");
 const DB = config.get("DB");
 
-// Lesson 7 - Exercise 1 //
+//region | ###### Get ###### |
 
+// Get all cards route.
+// Access / Authorization - All.
 // Returns all the cards in an array.
 exports.find = async () => {
     if (DB === "MONGODB") {
@@ -20,19 +22,24 @@ exports.find = async () => {
     return Promise.resolve([]);
 };
 
+// Getting all cards created by the requested user route.
+// Access / Authorization - The registered user.
 // Returns the user's created cards in an array.
 exports.findMyCards = async (userId) => {
     if (DB === "MONGODB") {
         try {
-            return Promise.resolve(`my cards: ${userId}`);
+            const cards = await Card.find({ user_id: { $eq: userId } });
+            return Promise.resolve(cards);
         } catch (error) {
             error.status = 404;
-            return Promise.reject(error);
+            return handleBadRequest("Mongoose", error);
         }
     }
     return Promise.resolve("Not From MONGODB");
 };
 
+// Getting a specific card route.
+// Access / Authorization - All.
 // Returns the card with the given id.
 exports.findOne = async (cardID) => {
     if (DB === "MONGODB") {
@@ -52,6 +59,12 @@ exports.findOne = async (cardID) => {
     return Promise.resolve({});
 };
 
+//endregion | ###### Get ###### |
+
+//region | ###### Post ###### |
+
+// Creating a card route.
+// Access / Authorization - Business accounts.
 // Returns back the object with the _id property added.
 exports.create = async (normalizedCard) => {
     if (DB === "MONGODB") {
@@ -60,7 +73,12 @@ exports.create = async (normalizedCard) => {
             card = await card.save();
             return Promise.resolve(card);
         } catch (error) {
-            // Card with that id was not found.
+            // If the error code represent a duplicate unique key value.
+            if (error.code === 11000) {
+                const uniqueFieldDup = Object.keys(error.keyPattern)[0];
+                const value = error.keyValue[uniqueFieldDup];
+                error.message = `The email '${value}' is already in use.`;
+            }
             error.status = 400;
             return Promise.reject(error);
         }
@@ -68,9 +86,23 @@ exports.create = async (normalizedCard) => {
     return Promise.resolve("Not From MONGODB");
 };
 
-// Lesson 7 - Exercise 2 //
+//endregion | ###### Post ###### |
 
-// Updates a card.
+//region | ###### Put ###### |
+
+/** Update card route.
+    
+    Access / Authorization: The user that created the card.
+    
+    The function will get a card id and a normalized card object.
+    
+    It will search in the database for a card with the given id.
+    
+    If it found a card with the same id then it will update the card with,
+    all of the data in the `normalizeCard` param object.
+    
+    Otherwise the card will return a promise rejection.
+*/
 exports.update = async (cardId, normalizedCard) => {
     if (DB === "MONGODB") {
         try {
@@ -91,6 +123,10 @@ exports.update = async (cardId, normalizedCard) => {
     }
     return Promise.resolve("card deleted not in mongodb!");
 };
+
+//endregion | ###### Put ###### |
+
+//region | ###### Patch ###### |
 
 // Likes a card.
 exports.like = async (cardId, userId) => {
@@ -123,6 +159,10 @@ exports.like = async (cardId, userId) => {
     return Promise.resolve("card updated!");
 };
 
+//endregion | ###### Patch ###### |
+
+//region | ###### Delete ###### |
+
 // Removes a card.
 exports.remove = async (cardId) => {
     if (DB === "MONGODB") {
@@ -144,3 +184,5 @@ exports.remove = async (cardId) => {
     }
     return Promise.resolve("card deleted not in mongodb!");
 };
+
+//endregion | ###### Delete ###### |

@@ -13,53 +13,36 @@ const {
 } = require("../services/cardsService");
 const currentDate = require("../../utils/timeStamp");
 const { auth } = require("../../auth/authService");
+const Log = require("../../logger/loggers/customLogger");
+const path = require("path");
+const { verifyToken } = require("../../auth/Providers/jwt");
+const FILE_NAME = path.basename(__filename);
 
-const controllerName = "cardController";
+const location = (routeLocation) => `${FILE_NAME} | ${routeLocation}`;
 
-// Get
+//region | ------ Get ------ |
+
+// Get all cards route.
+// Access / Authorization - All.
 router.get("/", async (req, res) => {
-    // Lesson 6 - Exercise 1 //
-    console.log(
-        chalk.green(
-            `${currentDate()} [server] [${controllerName}] Get from cards | url: "${req.url}"`
-        )
-    );
+    Log.get(location("GetAllCards"), "Get all cards request has been received.");
 
-    // Lesson 7 - Exercise 5 //
     try {
         const cards = await getCards();
         return res.send(cards);
     } catch (error) {
         return handleError(res, error.status || 500, error);
     }
-
-    // res.send(`[${controllerName}] Get from cards | url: "${req.url}"`);
 });
 
-router.get("/:id", async (req, res) => {
-    const id = req.params.id;
+// Getting all cards created by the requested user route.
+// Access / Authorization - The registered user.
+router.get("/my-cards", auth, async (req, res) => {
+    Log.get(location("GetMyCards"), "Get all of my cards request has been received.");
 
     try {
-        const card = await getCard(id);
-        res.send(card);
-    } catch (error) {
-        return handleError(res, error.status || 500, error);
-    }
+        const userId = req.user._id;
 
-    // Lesson 6 - Exercise 1 //
-    console.log(
-        chalk.green(
-            `${currentDate()} [server] [${controllerName}] Get a card with id: ${id} | url: "${
-                req.url
-            }"`
-        )
-    );
-    // res.send(`[${controllerName}] Get a card with id: ${id} | url: "${req.url}"`);
-});
-
-router.get("/my-cards", async (req, res) => {
-    try {
-        const userId = "adminID";
         const card = await getMyCards(userId);
         res.send(card);
     } catch (error) {
@@ -67,10 +50,30 @@ router.get("/my-cards", async (req, res) => {
     }
 });
 
-// Post / Create
-router.post("/", auth, async (req, res) => {
+// Getting a specific card route.
+// Access / Authorization - All.
+router.get("/:id", async (req, res) => {
+    const id = req.params.id;
+    Log.get(location("GetCard"), "Get a specific card request has been received.");
+
     try {
-        const { isBusiness } = req.user;
+        const card = await getCard(id);
+        res.send(card);
+    } catch (error) {
+        return handleError(res, error.status || 500, error);
+    }
+});
+
+//endregion | ------ Get ------ |
+
+//region | ------ Post ------ |
+
+// Creating a card route.
+// Access / Authorization - Business accounts.
+router.post("/", auth, async (req, res) => {
+    Log.post(location("CreateCard"), "Create card request has been received.");
+    try {
+        const { isBusiness, _id } = req.user;
         if (!isBusiness) {
             return handleError(
                 res,
@@ -80,29 +83,38 @@ router.post("/", auth, async (req, res) => {
                 )
             );
         }
-        const card = await createCard(req.body);
+        const card = await createCard(req.body, _id);
         res.status(201).send(card);
     } catch (error) {
         return handleError(res, error.status || 500, error);
     }
-
-    // Lesson 6 - Exercise 1 //
-    console.log(
-        chalk.blue(
-            `${currentDate()} [server] [${controllerName}] Post (Create) a card | url: "${req.url}"`
-        )
-    );
-    // res.send(`[${controllerName}] Post (Create) a card | url: "${req.url}"`);
 });
 
-// Put / Update
+//endregion | ------ Post ------ |
+
+//region | ------ Put ------ |
+
+// Update card route.
+// Access / Authorization: The user that created the card.
 router.put("/:id", auth, async (req, res) => {
-    const id = req.params.id;
+    Log.put(location("UpdateCard"), "Update card request has been received.");
 
     try {
-        const { _id } = req.user;
-        const cardUserCreatorId = req.body.user_id;
-        if (_id !== cardUserCreatorId) {
+        const cardId = req.params.id;
+        const user = req.user;
+        const rawCard = req.body;
+
+        if (!rawCard) {
+            return handleError(
+                res,
+                400,
+                new Error("Bad Request Error: No updated card object data provided.")
+            );
+        }
+
+        // Todo: To fix this error for some reason it refuses to compare the ids.
+        // From where the card's creator user's id is gotten from?
+        if (user._id !== rawCard.user_id) {
             return handleError(
                 res,
                 403,
@@ -111,24 +123,17 @@ router.put("/:id", auth, async (req, res) => {
                 )
             );
         }
-        const card = await updateCard(id, req.body);
+        const card = await updateCard(cardId, rawCard);
         res.send(card);
     } catch (error) {
         return handleError(res, error.status || 500, error);
     }
-
-    // Lesson 6 - Exercise 1 //
-    console.log(
-        chalk.magenta(
-            `${currentDate()} [server] [${controllerName}] Put (Update) a card with id: ${id} | url: "${
-                req.url
-            }"`
-        )
-    );
-    // res.send(`[${controllerName}] Put (Update) a card with id: ${id} | url: "${req.url}"`);
 });
 
-// Patch
+//endregion | ------ Put ------ |
+
+//region | ------ Patch ------ |
+
 router.patch("/:id", auth, async (req, res) => {
     const id = req.params.id;
     const userId = "123456";
@@ -139,18 +144,12 @@ router.patch("/:id", auth, async (req, res) => {
     } catch (error) {
         return handleError(res, error.status || 500, error);
     }
-
-    // Lesson 6 - Exercise 2 //
-    console.log(
-        chalk.hex("#800080")(
-            `[${controllerName}] Patch from cards with id: ${id} | url: "${req.url}"`
-        )
-    );
-
-    // res.send(`[${controllerName} Patch from cards with id: ${id} | url: "${req.url}"]`);
 });
 
-// Delete
+//endregion | ------ Patch ------ |
+
+//region | ------ Delete ------ |
+
 router.delete("/:id", auth, async (req, res) => {
     const id = req.params.id;
 
@@ -171,16 +170,9 @@ router.delete("/:id", auth, async (req, res) => {
     } catch (error) {
         return handleError(res, error.status || 500, error);
     }
-
-    // Lesson 6 - Exercise 2 //
-    console.log(
-        chalk.hex("#FF4500")(
-            `[${controllerName}] Delete from cards using id: ${id} | url: "${req.url}"`
-        )
-    );
-
-    // res.send(`[${controllerName}] Delete from cards using id: ${id} | url: "${req.url}"`);
 });
+
+//endregion | ------ Delete ------ |
 
 // Exporting the updated router object.
 module.exports = router;
