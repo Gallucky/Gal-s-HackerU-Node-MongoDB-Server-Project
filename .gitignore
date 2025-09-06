@@ -1,12 +1,5 @@
 # === Node.js ===
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-package-lock.json
-yarn.lock
-.pnpm-debug.log
 
 # === Config & Secrets ===
 config/
@@ -16,30 +9,3 @@ config/
 *.key
 *.pem
 *.crt
-
-# === Logs ===
-logs/
-*.log
-*.out
-*.err
-
-# === Build Output ===
-dist/
-build/
-.cache/
-coverage/
-.next/
-.nuxt/
-
-# === OS / IDE ===
-.DS_Store
-Thumbs.db
-*.swp
-*.swo
-.vscode/
-.idea/
-
-# === Misc ===
-*.bak
-*.tmp
-*.pid

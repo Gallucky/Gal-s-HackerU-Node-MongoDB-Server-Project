@@ -21,18 +21,23 @@ const generateInitialCards = async () => {
             // Creating default cards using this id.
             const userId = "68b097cc5510cdf63db096b5";
 
-            if (checkInitialCard(card.email)) {
+            // Because 'checkInitialCard' method is async await is needed.
+            // If await is not provided result can be not accurate.
+            // For example default value will be true (initial card's email addresses already in use),
+            // although and even if the database 'Cards' collection is empty.
+            if (await checkInitialCard(card.email)) {
                 // Breaking before trying to create the card.
                 // The email is already in use.
                 // Thus the initial card is already created in the database most likely.
                 // Or different card entirely is in the database with the initial card's email address.
                 const timeStamp = getCurrentTimeStampFormatted();
-                return console.log(
+                console.log(
                     chalk.yellowBright(
                         timeStamp +
                             ` [initialDataService.js] [Card]: The initial card's email is already in use.`
                     )
                 );
+                return;
             }
 
             card = await normalizeCard(card, userId);
@@ -56,16 +61,21 @@ const generateInitialUsers = async () => {
     // Foreach initial user trying to create it.
     users.forEach(async (user) => {
         try {
-            if (checkInitialUser(user.email)) {
+            // Because 'checkInitialUser' method is async await is needed.
+            // If await is not provided result can be not accurate.
+            // For example default value will be true (initial user's email addresses already in use),
+            // although and even if the database 'Users' collection is empty.
+            if (await checkInitialUser(user.email)) {
                 // Breaking before attempting to register the initial user.
                 // Because the email is already in use.
                 const timeStamp = getCurrentTimeStampFormatted();
-                return console.log(
+                console.log(
                     chalk.yellowBright(
                         timeStamp +
                             ` [initialDataService.js] [User]: The initial user's email is already in use.`
                     )
                 );
+                return;
             }
             user = await normalizeUser(user);
             // Encrypting the password of the current initial user.

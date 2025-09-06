@@ -101,7 +101,7 @@ router.put("/:id", auth, async (req, res) => {
 
     try {
         const cardId = req.params.id;
-        const user = req.user;
+        const userId = req.user._id;
         const rawCard = req.body;
 
         if (!rawCard) {
@@ -112,9 +112,14 @@ router.put("/:id", auth, async (req, res) => {
             );
         }
 
-        // Todo: To fix this error for some reason it refuses to compare the ids.
-        // From where the card's creator user's id is gotten from?
-        if (user._id !== rawCard.user_id) {
+        // Getting the card by it's id to get the user's id that created it.
+        const currentCard = await getCard(cardId);
+        const cardUserId = await currentCard.user_id;
+
+        // Checking the value only because, userId is of type string and cardUserId is of type objectId.
+        // Another way is to use the following condition: String(userId) !== String(cardUserId).
+        // String() is null/undefined safe that's why it is recommended in this case instead of .toString().
+        if (userId != cardUserId) {
             return handleError(
                 res,
                 403,
@@ -123,6 +128,7 @@ router.put("/:id", auth, async (req, res) => {
                 )
             );
         }
+
         const card = await updateCard(cardId, rawCard);
         res.send(card);
     } catch (error) {

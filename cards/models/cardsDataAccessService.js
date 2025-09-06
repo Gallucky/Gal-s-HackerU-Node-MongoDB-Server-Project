@@ -44,12 +44,14 @@ exports.findMyCards = async (userId) => {
 exports.findOne = async (cardID) => {
     if (DB === "MONGODB") {
         try {
-            const cards = await Card.findById(cardID);
-            if (!cards) {
+            const card = await Card.findById(cardID);
+            if (!card) {
                 throw new Error("Could not find this card in the database");
             }
 
-            return Promise.resolve(cards);
+            console.log(card);
+
+            return Promise.resolve(card);
         } catch (error) {
             // Card with that id was not found.
             error.status = 404;

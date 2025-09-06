@@ -36,7 +36,6 @@ const validateCardWithJoi = (card) => {
             zip: Joi.number().min(1000).allow(0),
         }),
         bizNumber: Joi.number().allow(""),
-        user_id: Joi.string().allow(""),
     });
 
     return schema.validate(card);
