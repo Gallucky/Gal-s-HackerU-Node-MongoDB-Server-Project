@@ -9,3 +9,6 @@ config/
 *.key
 *.pem
 *.crt
+
+# === Logs ===
+eslint-report.log
