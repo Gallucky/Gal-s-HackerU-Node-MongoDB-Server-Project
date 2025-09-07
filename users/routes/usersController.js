@@ -1,4 +1,3 @@
-const chalk = require("chalk");
 const express = require("express");
 const router = express.Router();
 const { safeHandle, handleError } = require("../../utils/errorHandler");
@@ -11,13 +10,18 @@ const {
     updateUser,
     registerUser,
 } = require("../services/usersService");
-const controllerName = "usersController";
-const currentDate = require("../../utils/timeStamp");
 const { auth } = require("../../auth/authService");
 const Log = require("../../logger/loggers/customLogger");
+const path = require("path");
+const FILE_NAME = path.basename(__filename);
 
-// Get
+const location = (routeLocation) => `${FILE_NAME} | ${routeLocation}`;
+
+//region | ------ Get ------ |
+
 router.get("/", auth, async (req, res) => {
+    Log.get(location("GetUsers"), "Get all users request has been received.");
+
     try {
         const { isAdmin } = req.user;
 
@@ -34,17 +38,11 @@ router.get("/", auth, async (req, res) => {
     } catch (error) {
         safeHandle(res, error);
     }
-
-    // Lesson 6 - Exercise 3 //
-    console.log(
-        chalk.blue(
-            `${currentDate()} [server] [${controllerName}] Get from users | url: "${req.url}"`
-        )
-    );
 });
 
 router.get("/:id", auth, async (req, res) => {
     const id = req.params.id;
+    Log.get(location("GetUserById"), `Get user by id request has been received.`);
 
     try {
         const { _id, isAdmin } = req.user;
@@ -62,21 +60,16 @@ router.get("/:id", auth, async (req, res) => {
     } catch (error) {
         safeHandle(res, error);
     }
-
-    // Lesson 6 - Exercise 3 //
-    console.log(
-        chalk.blue(
-            `${currentDate()} [server] [${controllerName}] Get from users with ID: ${id} | url: "${
-                req.url
-            }"`
-        )
-    );
 });
 
-// Post (Create)
+//endregion | ------ Get ------ |
+
+//region | ------ Post ------ |
+
 router.post("/", async (req, res) => {
+    Log.post(location("RegisterUser"), "Register request has been received.");
+
     try {
-        Log.post("usersController.js", "User registration request received.");
         const user = await registerUser(req.body);
         return res.status(201).send(user);
     } catch (error) {
@@ -85,27 +78,23 @@ router.post("/", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
+    Log.post(location("LoginUser"), "Login request has been received.");
+
     try {
-        Log.post("usersController.js", "Login request received.");
         const user = await loginUser(req.body);
         return res.send(user);
     } catch (error) {
         safeHandle(res, error);
     }
-
-    // Lesson 6 - Exercise 3 //
-    console.log(
-        chalk.blue(
-            `${currentDate()} [server] [${controllerName}] Post from users with login | url: "${
-                req.url
-            }"`
-        )
-    );
 });
 
-// Put (Update)
+//endregion | ------ Post ------ |
+
+//region | ------ Put ------ |
+
 router.put("/:id", auth, async (req, res) => {
     const id = req.params.id;
+    Log.put(location("UpdateUser"), `Update user by id request has been received.`);
 
     try {
         const { _id } = req.user;
@@ -123,28 +112,28 @@ router.put("/:id", auth, async (req, res) => {
     } catch (error) {
         safeHandle(res, error);
     }
-
-    // Lesson 6 - Exercise 3 //
-    console.log(
-        chalk.blue(
-            `${currentDate()} [server] [${controllerName}] Put to user with ID: ${id} | url: "${
-                req.url
-            }"`
-        )
-    );
 });
 
-// Patch
+//endregion | ------ Put ------ |
+
+//region | ------ Patch ------ |
+
 router.patch("/:id", auth, async (req, res) => {
     const id = req.params.id;
+    Log.patch(
+        location("ChangeUserBusinessStatus"),
+        `Change user business status request has been received.`
+    );
+
     try {
-        const { _id, isAdmin } = req.user;
-        if (_id !== id && !isAdmin) {
+        // The requesting user.
+        const { _id } = req.user;
+        if (_id !== id) {
             return handleError(
                 res,
                 403,
                 new Error(
-                    "Authorization Error: Access Denied - Only the given user or an admin user can change this user's business status."
+                    "Authorization Error: Access Denied - Only the given user can change this user's business status."
                 )
             );
         }
@@ -153,19 +142,15 @@ router.patch("/:id", auth, async (req, res) => {
     } catch (error) {
         safeHandle(res, error);
     }
-    // Lesson 6 - Exercise 4 //
-    console.log(
-        chalk.hex("#800080")(
-            `${currentDate()} [server] [${controllerName}] Patch from users with id: ${id} | url: "${
-                req.url
-            }"`
-        )
-    );
 });
 
-// Delete
+//endregion | ------ Patch ------ |
+
+//region | ------ Delete ------ |
+
 router.delete("/:id", auth, async (req, res) => {
     const id = req.params.id;
+    Log.delete(location("DeleteUser"), `Delete user by id request has been received.`);
 
     try {
         const { _id, isAdmin } = req.user;
@@ -183,10 +168,8 @@ router.delete("/:id", auth, async (req, res) => {
     } catch (error) {
         safeHandle(res, error);
     }
-    // Lesson 6 - Exercise 4 //
-    console.log(
-        chalk.hex("#FF4500")(`${currentDate()} [server] [${controllerName}] in user delete!`)
-    );
 });
+
+//endregion | ------ Delete ------ |
 
 module.exports = router;

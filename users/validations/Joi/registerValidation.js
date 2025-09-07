@@ -11,7 +11,6 @@ const registerValidation = (user) => {
             middle: Joi.string().min(2).max(256).allow(""),
             last: Joi.string().min(2).max(256).required(),
         }),
-        isAdmin: Joi.boolean().default(false),
         isBusiness: Joi.boolean().default(false),
         phone: Joi.string()
             .pattern(/^0\d{1,2}-?\s?\d{3}\s?\d{4}$/)

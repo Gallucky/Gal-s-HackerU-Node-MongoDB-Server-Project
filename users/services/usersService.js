@@ -11,7 +11,30 @@ const { validateRegistration, validateLogin } = require("../validations/userVali
 const normalizeUser = require("../helpers/normalizeUser");
 const { generateUserPassword } = require("../helpers/bcrypt");
 
-// Lesson 7 - Exercise 9 //
+//region | ====== Get ====== |
+
+exports.getUsers = async () => {
+    try {
+        const users = await find();
+        return Promise.resolve(users);
+    } catch (error) {
+        return Promise.reject(error);
+    }
+};
+
+exports.getUser = async (userId) => {
+    try {
+        const user = await findOne(userId);
+        return Promise.resolve(user);
+    } catch (error) {
+        return Promise.reject(error);
+    }
+};
+
+//endregion | ====== Get ====== |
+
+//region | ====== Post ====== |
+
 exports.registerUser = async (rawUser) => {
     try {
         const { error } = validateRegistration(rawUser);
@@ -45,25 +68,10 @@ exports.loginUser = async (user) => {
     }
 };
 
-exports.getUsers = async () => {
-    try {
-        const users = await find();
-        return Promise.resolve(users);
-    } catch (error) {
-        return Promise.reject(error);
-    }
-};
+//endregion | ====== Post ====== |
 
-exports.getUser = async (userId) => {
-    try {
-        const user = await findOne(userId);
-        return Promise.resolve(user);
-    } catch (error) {
-        return Promise.reject(error);
-    }
-};
+//region | ====== Put ====== |
 
-// Lesson 7 - Exercise 10 //
 exports.updateUser = async (userId, rawUser) => {
     try {
         let user = normalizeUser(rawUser);
@@ -74,6 +82,10 @@ exports.updateUser = async (userId, rawUser) => {
     }
 };
 
+//endregion | ====== Put ====== |
+
+//region | ====== Patch ====== |
+
 exports.changeUserBusinessStatus = async (userId) => {
     try {
         const user = await changeIsBizStatus(userId);
@@ -83,6 +95,10 @@ exports.changeUserBusinessStatus = async (userId) => {
     }
 };
 
+//endregion | ====== Patch ====== |
+
+//region | ====== Delete ====== |
+
 exports.deleteUser = async (userId) => {
     try {
         const user = await remove(userId);
@@ -91,3 +107,5 @@ exports.deleteUser = async (userId) => {
         return Promise.reject(error);
     }
 };
+
+//endregion | ====== Delete ====== |

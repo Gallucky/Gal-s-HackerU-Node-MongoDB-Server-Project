@@ -42,21 +42,6 @@
                 "houseNumber": "5"
             },
             "image": { "url": "", "alt": "" }
-        },
-        {
-            "name": { "first": "Gal", "last": "Ben Abu" },
-            "isBusiness": true,
-            "isAdmin": true,
-            "phone": "050-0000000",
-            "email": "galbenabu1111@gmail.com",
-            "password": "aAdmin123!",
-            "address": {
-                "country": "Israel",
-                "city": "Eilat",
-                "street": "magnive",
-                "houseNumber": "5"
-            },
-            "image": { "url": "", "alt": "" }
         }
     ],
     "cards": [

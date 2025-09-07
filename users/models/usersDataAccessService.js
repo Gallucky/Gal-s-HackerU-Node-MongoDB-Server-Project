@@ -6,7 +6,53 @@ const config = require("config");
 const { generateAuthToken } = require("../../auth/Providers/jwt");
 const DB = config.get("DB");
 
-// Lesson 7 - Exercise 7 //
+//region | ###### Get ###### |
+
+exports.find = async () => {
+    if (DB === "MONGODB") {
+        try {
+            const users = await User.find(
+                {},
+                {
+                    password: 0,
+                    __v: 0,
+                }
+            );
+
+            return Promise.resolve(users);
+        } catch (error) {
+            error.status = 404;
+            return handleBadRequest("Mongoose", error);
+        }
+    }
+    return Promise.resolve([]);
+};
+
+exports.findOne = async (userId) => {
+    if (DB === "MONGODB") {
+        try {
+            const user = await User.findById(userId, {
+                password: 0,
+                __v: 0,
+            });
+
+            if (!user) {
+                throw new Error("Could not find this user in the database");
+            }
+
+            return Promise.resolve(user);
+        } catch (error) {
+            error.status = 404;
+            return handleBadRequest("Mongoose", error);
+        }
+    }
+    return Promise.resolve("Not From MONGODB");
+};
+
+//endregion | ###### Get ###### |
+
+//region | ###### Post ###### |
+
 exports.register = async (normalizedUser) => {
     if (DB === "MONGODB") {
         try {
@@ -55,48 +101,10 @@ exports.login = async (normalizedUser) => {
     return Promise.resolve("user created not in mongodb!");
 };
 
-exports.find = async () => {
-    if (DB === "MONGODB") {
-        try {
-            const users = await User.find(
-                {},
-                {
-                    password: 0,
-                    __v: 0,
-                }
-            );
+//endregion | ###### Post ###### |
 
-            return Promise.resolve(users);
-        } catch (error) {
-            error.status = 404;
-            return handleBadRequest("Mongoose", error);
-        }
-    }
-    return Promise.resolve([]);
-};
+//region | ###### Put ###### |
 
-exports.findOne = async (userId) => {
-    if (DB === "MONGODB") {
-        try {
-            const user = await User.findById(userId, {
-                password: 0,
-                __v: 0,
-            });
-
-            if (!user) {
-                throw new Error("Could not find this user in the database");
-            }
-
-            return Promise.resolve(user);
-        } catch (error) {
-            error.status = 404;
-            return handleBadRequest("Mongoose", error);
-        }
-    }
-    return Promise.resolve("Not From MONGODB");
-};
-
-// Lesson 7 - Exercise 8 //
 exports.update = async (userId, normalizedUser) => {
     if (DB === "MONGODB") {
         try {
@@ -120,6 +128,10 @@ exports.update = async (userId, normalizedUser) => {
     }
     return Promise.resolve("User updated not in mongodb");
 };
+
+//endregion | ###### Put ###### |
+
+//region | ###### Patch ###### |
 
 exports.changeIsBizStatus = async (userId) => {
     if (DB === "MONGODB") {
@@ -152,14 +164,14 @@ exports.changeIsBizStatus = async (userId) => {
     return Promise.resolve("card updated!");
 };
 
+//endregion | ###### Patch ###### |
+
+//region | ###### Delete ###### |
+
 exports.remove = async (userId) => {
     if (DB === "MONGODB") {
         try {
-            const user = await User.findOneAndDelete(
-                userId,
-                { password: 0, __v: 0 },
-                { new: true }
-            );
+            const user = await User.findOneAndDelete({ _id: userId }).select("-password -__v");
 
             if (!user) {
                 throw new Error(
@@ -175,3 +187,5 @@ exports.remove = async (userId) => {
     }
     return Promise.resolve("user deleted not in mongodb!");
 };
+
+//endregion | ###### Delete ###### |
