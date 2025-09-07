@@ -3,17 +3,17 @@ const currentDate = require("../../utils/timeStamp");
 
 const Log = {
     get: (location, message) =>
-        console.log(chalk.greenBright(`${currentDate()} [${location}] [GET]: ${message}`)),
+        console.info(chalk.greenBright(`${currentDate()} [${location}] [GET]: ${message}`)),
     post: (location, message) =>
-        console.log(chalk.yellowBright(`${currentDate()} [${location}] [POST]: ${message}`)),
+        console.info(chalk.yellowBright(`${currentDate()} [${location}] [POST]: ${message}`)),
     put: (location, message) =>
-        console.log(chalk.blueBright(`${currentDate()} [${location}] [PUT]: ${message}`)),
+        console.info(chalk.blueBright(`${currentDate()} [${location}] [PUT]: ${message}`)),
     patch: (location, message) =>
-        console.log(
+        console.info(
             chalk.ForegroundColor("#ad84e6")(`${currentDate()} [${location}] [PATCH]: ${message}`)
         ),
     delete: (location, message) =>
-        console.log(
+        console.info(
             chalk.ForegroundColor("#FF5719")(`${currentDate()} [${location}] [DELETE]: ${message}`)
         ),
 };

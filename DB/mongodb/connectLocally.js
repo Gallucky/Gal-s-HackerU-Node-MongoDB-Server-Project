@@ -4,7 +4,7 @@ const currentDate = require("../../utils/timeStamp");
 
 mongoose
     .connect("mongodb://localhost:27017/business_card_app")
-    .then(() => console.log(chalk.magentaBright(currentDate() + " Connect Locally To MongoDB!")))
+    .then(() => console.info(chalk.magentaBright(currentDate() + " Connect Locally To MongoDB!")))
     .catch((error) => {
-        console.log(chalk.redBright(error));
+        console.error(chalk.redBright(error));
     });

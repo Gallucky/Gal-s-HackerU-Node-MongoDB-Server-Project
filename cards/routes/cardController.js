@@ -1,4 +1,3 @@
-const chalk = require("chalk");
 const express = require("express");
 const { handleError } = require("../../utils/errorHandler");
 const router = express.Router();
@@ -11,11 +10,9 @@ const {
     likeCard,
     deleteCard,
 } = require("../services/cardsService");
-const currentDate = require("../../utils/timeStamp");
 const { auth } = require("../../auth/authService");
 const Log = require("../../logger/loggers/customLogger");
 const path = require("path");
-const { verifyToken } = require("../../auth/Providers/jwt");
 const FILE_NAME = path.basename(__filename);
 
 const location = (routeLocation) => `${FILE_NAME} | ${routeLocation}`;

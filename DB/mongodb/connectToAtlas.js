@@ -7,7 +7,7 @@ const DB_PASS = config.get("DB_PASSWORD");
 
 mongoose
     .connect(`mongodb+srv://${DB_NAME}:${DB_PASS}@cluster0.q7wd5ov.mongodb.net/`)
-    .then(() => console.log(chalk.magentaBright("Connect To Atlas MongoDB!")))
+    .then(() => console.info(chalk.magentaBright("Connect To Atlas MongoDB!")))
     .catch((error) => {
-        console.log(chalk.redBright(error));
+        console.error(chalk.redBright(error));
     });

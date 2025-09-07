@@ -49,8 +49,6 @@ exports.findOne = async (cardID) => {
                 throw new Error("Could not find this card in the database");
             }
 
-            console.log(card);
-
             return Promise.resolve(card);
         } catch (error) {
             // Card with that id was not found.

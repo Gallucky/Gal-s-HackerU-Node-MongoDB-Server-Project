@@ -6,8 +6,6 @@ const { create } = require("../cards/models/cardsDataAccessService");
 const { generateUserPassword } = require("../users/helpers/bcrypt");
 const chalk = require("chalk");
 const getCurrentTimeStampFormatted = require("../utils/timeStamp");
-const { handleError } = require("../utils/errorHandler");
-const getLocationFromErrorStack = require("../utils/getLocationFormatted");
 const Card = require("../cards/models/mongodb/Card");
 const User = require("../users/models/mongodb/User");
 
@@ -31,7 +29,7 @@ const generateInitialCards = async () => {
                 // Thus the initial card is already created in the database most likely.
                 // Or different card entirely is in the database with the initial card's email address.
                 const timeStamp = getCurrentTimeStampFormatted();
-                console.log(
+                console.info(
                     chalk.yellowBright(
                         timeStamp +
                             ` [initialDataService.js] [Card]: The initial card's email is already in use.`
@@ -47,9 +45,8 @@ const generateInitialCards = async () => {
             // If error occurs get the current timestamp and print the error.
             // Usually if the data already exists in the database.
             const timeStamp = getCurrentTimeStampFormatted();
-            return console.log(
-                chalk.redBright(timeStamp + ` [initialDataService.js]: ` + error.message)
-            );
+            console.info(chalk.redBright(timeStamp + ` [initialDataService.js]: ` + error.message));
+            return;
         }
     });
 };
@@ -69,7 +66,7 @@ const generateInitialUsers = async () => {
                 // Breaking before attempting to register the initial user.
                 // Because the email is already in use.
                 const timeStamp = getCurrentTimeStampFormatted();
-                console.log(
+                console.info(
                     chalk.yellowBright(
                         timeStamp +
                             ` [initialDataService.js] [User]: The initial user's email is already in use.`
@@ -86,9 +83,10 @@ const generateInitialUsers = async () => {
             // If error occurs get the current timestamp and print the error.
             // Usually if the data already exists in the database.
             const timeStamp = getCurrentTimeStampFormatted();
-            return console.log(
+            console.error(
                 chalk.redBright(timeStamp + ` [initialDataService.js]: ` + error.message)
             );
+            return;
         }
     });
 };
@@ -100,10 +98,10 @@ const checkInitialCard = async (cardEmail) => {
 
         // If emailUsed is not falsy value then a card was found.
         return emailUsed ? true : false;
-    } catch {
+    } catch (error) {
         // If error occurs get the current timestamp and print the error.
         const timeStamp = getCurrentTimeStampFormatted();
-        console.log(chalk.redBright(timeStamp + ` [initialDataService.js]: ` + error.message));
+        console.error(chalk.redBright(timeStamp + ` [initialDataService.js]: ` + error.message));
         return false;
     }
 };
@@ -115,10 +113,10 @@ const checkInitialUser = async (userEmail) => {
 
         // If emailUsed is not falsy value then a user was found.
         return emailUsed ? true : false;
-    } catch {
+    } catch (error) {
         // If error occurs get the current timestamp and print the error.
         const timeStamp = getCurrentTimeStampFormatted();
-        console.log(chalk.redBright(timeStamp + ` [initialDataService.js]: ` + error.message));
+        console.error(chalk.redBright(timeStamp + ` [initialDataService.js]: ` + error.message));
         return false;
     }
 };

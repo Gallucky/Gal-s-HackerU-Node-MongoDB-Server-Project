@@ -1,5 +1,3 @@
-const path = require("path");
-
 const getLocationFromErrorStack = (errorStack) => {
     if (!errorStack) return { file: "unknown", line: "unknown", character: "unknown" };
 

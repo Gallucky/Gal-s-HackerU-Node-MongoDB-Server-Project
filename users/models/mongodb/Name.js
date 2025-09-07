@@ -1,4 +1,3 @@
-const { first } = require("lodash");
 const mongoose = require("mongoose");
 
 const { DEFAULT_VALIDATION } = require("../../helpers/commonValidations");

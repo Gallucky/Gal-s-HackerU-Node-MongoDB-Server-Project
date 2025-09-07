@@ -19,13 +19,13 @@ app.use(express.static("./public"));
 app.use(router);
 
 // Error Handler Middleware
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
     handleError(res, err.status || 500, err.message);
 });
 
 const PORT = config.get("PORT");
 app.listen(PORT, () => {
-    console.log(`\n${currentDate()} [server] Listening... Port: ${PORT}`);
+    console.info(chalk.cyanBright(`\n${currentDate()} [server] Listening... Port: ${PORT}`));
     connectToDb();
     generateInitialUsers();
     generateInitialCards();
