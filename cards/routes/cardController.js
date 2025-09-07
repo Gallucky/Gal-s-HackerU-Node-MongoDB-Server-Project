@@ -138,11 +138,12 @@ router.put("/:id", auth, async (req, res) => {
 //region | ------ Patch ------ |
 
 router.patch("/:id", auth, async (req, res) => {
-    const id = req.params.id;
-    const userId = "123456";
+    const cardId = req.params.id;
+    const userId = req.user._id;
+    Log.patch(location("LikeUnlikeCard"), "A like or unlike a card request has been received.");
 
     try {
-        const card = await likeCard(id, userId);
+        const card = await likeCard(cardId, userId);
         res.send(card);
     } catch (error) {
         return handleError(res, error.status || 500, error);
@@ -154,12 +155,19 @@ router.patch("/:id", auth, async (req, res) => {
 //region | ------ Delete ------ |
 
 router.delete("/:id", auth, async (req, res) => {
-    const id = req.params.id;
+    const cardId = req.params.id;
+    Log.delete(location("DeleteCard"), "Delete card request has been received.");
 
     try {
         const { _id, isAdmin } = req.user;
-        const cardUserCreatorId = req.user.user_id;
-        if (_id !== cardUserCreatorId && !isAdmin) {
+        const currentCard = await getCard(cardId);
+        const cardUserCreatorId = await currentCard.user_id;
+
+        // Here we are using != and not !== because _id is of type string
+        // and cardUserCreatorId is of type objectId.
+        // Another way is to use the following condition: String(_id) !== String(cardUserCreatorId).
+        // String() is null/undefined safe that's why it is recommended in this case instead of .toString().
+        if (_id != cardUserCreatorId && !isAdmin) {
             return handleError(
                 res,
                 403,
@@ -168,7 +176,7 @@ router.delete("/:id", auth, async (req, res) => {
                 )
             );
         }
-        const card = await deleteCard(id);
+        const card = await deleteCard(cardId);
         res.send(card);
     } catch (error) {
         return handleError(res, error.status || 500, error);

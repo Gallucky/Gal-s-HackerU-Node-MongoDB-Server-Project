@@ -9,13 +9,9 @@ const Log = {
     put: (location, message) =>
         console.info(chalk.blueBright(`${currentDate()} [${location}] [PUT]: ${message}`)),
     patch: (location, message) =>
-        console.info(
-            chalk.ForegroundColor("#ad84e6")(`${currentDate()} [${location}] [PATCH]: ${message}`)
-        ),
+        console.info(chalk.hex("#ad84e6")(`${currentDate()} [${location}] [PATCH]: ${message}`)),
     delete: (location, message) =>
-        console.info(
-            chalk.ForegroundColor("#FF5719")(`${currentDate()} [${location}] [DELETE]: ${message}`)
-        ),
+        console.info(chalk.hex("#FF5719")(`${currentDate()} [${location}] [DELETE]: ${message}`)),
 };
 
 module.exports = Log;
