@@ -12,7 +12,7 @@ const RouteLoggerBase = winston.createLogger({
         // Making sure that timestamp can be used
         // and it will be formatted based on
         // the format pattern bellow.
-        timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+        timestamp({ format: "YYYY-MM-DD | HH:mm:ss" }),
         // This will use the different log data and will write
         // To the transports destinations in a structured way.
         printf(({ timestamp, level, message }) => {
@@ -41,29 +41,13 @@ const RouteLoggerBase = winston.createLogger({
             }
 
             // The message to send.
-            return color(`[${timestamp}] [${level.toUpperCase()}]: ${message}`);
+            return color(`[${timestamp}] [${level.toUpperCase()}] ${message}`);
         })
     ),
 
     // To where the log message will be sent to.
     transports: [new winston.transports.Console()],
 });
-
-/***
- * Helper method to extract only the file name and the line number
- * that will create and return a string with a certain format for the logger.
- * @deprecated {@linkcode log}
- */
-const extractFileLineInfo = (err, routeName) => {
-    let stack;
-    if (err) stack = err.stack;
-
-    const location = getLocationFromErrorStack(stack);
-
-    if (!routeName) return `[${location.file}] [Line: ${location.line}]`;
-
-    return `[${location.file} | ${routeName}] [Line: ${location.line}]`;
-};
 
 /** An helper function that will construct the final log message based on the parameters:
  * @param level The log priority/level of the message. [Mandatory]

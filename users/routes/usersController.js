@@ -11,16 +11,12 @@ const {
     registerUser,
 } = require("../services/usersService");
 const { auth } = require("../../auth/authService");
-const Log = require("../../logger/loggers/customLogger");
-const path = require("path");
-const FILE_NAME = path.basename(__filename);
-
-const location = (routeLocation) => `${FILE_NAME} | ${routeLocation}`;
+const RouterLogger = require("../../logger/loggers/customLogger");
 
 //region | ------ Get ------ |
 
 router.get("/", auth, async (req, res) => {
-    Log.get(location("GetUsers"), "Get all users request has been received.");
+    RouterLogger.get("Get all users request has been received.", "GetUsers", new Error());
 
     try {
         const { isAdmin } = req.user;
@@ -42,7 +38,7 @@ router.get("/", auth, async (req, res) => {
 
 router.get("/:id", auth, async (req, res) => {
     const id = req.params.id;
-    Log.get(location("GetUserById"), `Get user by id request has been received.`);
+    RouterLogger.get(`Get user by id request has been received.`, "GetUserById", new Error());
 
     try {
         const { _id, isAdmin } = req.user;
@@ -67,7 +63,7 @@ router.get("/:id", auth, async (req, res) => {
 //region | ------ Post ------ |
 
 router.post("/", async (req, res) => {
-    Log.post(location("RegisterUser"), "Register request has been received.");
+    RouterLogger.post("Register request has been received.", "RegisterUser", new Error());
 
     try {
         const user = await registerUser(req.body);
@@ -78,7 +74,7 @@ router.post("/", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
-    Log.post(location("LoginUser"), "Login request has been received.");
+    RouterLogger.post("Login request has been received.", "LoginUser", new Error());
 
     try {
         const user = await loginUser(req.body);
@@ -94,7 +90,7 @@ router.post("/login", async (req, res) => {
 
 router.put("/:id", auth, async (req, res) => {
     const id = req.params.id;
-    Log.put(location("UpdateUser"), `Update user by id request has been received.`);
+    RouterLogger.put(`Update user by id request has been received.`, "UpdateUser", new Error());
 
     try {
         const { _id } = req.user;
@@ -120,9 +116,10 @@ router.put("/:id", auth, async (req, res) => {
 
 router.patch("/:id", auth, async (req, res) => {
     const id = req.params.id;
-    Log.patch(
-        location("ChangeUserBusinessStatus"),
-        `Change user business status request has been received.`
+    RouterLogger.patch(
+        `Change user business status request has been received.`,
+        "ChangeUserBusinessStatus",
+        new Error()
     );
 
     try {
@@ -150,7 +147,7 @@ router.patch("/:id", auth, async (req, res) => {
 
 router.delete("/:id", auth, async (req, res) => {
     const id = req.params.id;
-    Log.delete(location("DeleteUser"), `Delete user by id request has been received.`);
+    RouterLogger.delete(`Delete user by id request has been received.`, "DeleteUser", new Error());
 
     try {
         const { _id, isAdmin } = req.user;

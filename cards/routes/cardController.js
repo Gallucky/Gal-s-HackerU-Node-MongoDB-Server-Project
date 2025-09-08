@@ -11,18 +11,14 @@ const {
     deleteCard,
 } = require("../services/cardsService");
 const { auth } = require("../../auth/authService");
-const Log = require("../../logger/loggers/customLogger");
-const path = require("path");
-const FILE_NAME = path.basename(__filename);
-
-const location = (routeLocation) => `${FILE_NAME} | ${routeLocation}`;
+const RouteLogger = require("../../logger/loggers/customLogger");
 
 //region | ------ Get ------ |
 
 // Get all cards route.
 // Access / Authorization - All.
 router.get("/", async (req, res) => {
-    Log.get(location("GetAllCards"), "Get all cards request has been received.");
+    RouteLogger.get("Get all cards request has been received.", "GetAllCards", new Error());
 
     try {
         const cards = await getCards();
@@ -35,7 +31,7 @@ router.get("/", async (req, res) => {
 // Getting all cards created by the requested user route.
 // Access / Authorization - The registered user.
 router.get("/my-cards", auth, async (req, res) => {
-    Log.get(location("GetMyCards"), "Get all of my cards request has been received.");
+    RouteLogger.get("Get all of my cards request has been received.", "GetMyCards", new Error());
 
     try {
         const userId = req.user._id;
@@ -51,7 +47,7 @@ router.get("/my-cards", auth, async (req, res) => {
 // Access / Authorization - All.
 router.get("/:id", async (req, res) => {
     const id = req.params.id;
-    Log.get(location("GetCard"), "Get a specific card request has been received.");
+    RouteLogger.get("Get a specific card request has been received.", "GetCard", new Error());
 
     try {
         const card = await getCard(id);
@@ -68,7 +64,8 @@ router.get("/:id", async (req, res) => {
 // Creating a card route.
 // Access / Authorization - Business accounts.
 router.post("/", auth, async (req, res) => {
-    Log.post(location("CreateCard"), "Create card request has been received.");
+    RouteLogger.post("Create card request has been received.", "CreateCard", new Error());
+
     try {
         const { isBusiness, _id } = req.user;
         if (!isBusiness) {
@@ -94,7 +91,7 @@ router.post("/", auth, async (req, res) => {
 // Update card route.
 // Access / Authorization: The user that created the card.
 router.put("/:id", auth, async (req, res) => {
-    Log.put(location("UpdateCard"), "Update card request has been received.");
+    RouteLogger.put("Update card request has been received.", "UpdateCard", new Error());
 
     try {
         const cardId = req.params.id;
@@ -140,7 +137,11 @@ router.put("/:id", auth, async (req, res) => {
 router.patch("/:id", auth, async (req, res) => {
     const cardId = req.params.id;
     const userId = req.user._id;
-    Log.patch(location("LikeUnlikeCard"), "A like or unlike a card request has been received.");
+    RouteLogger.patch(
+        "A like or unlike a card request has been received.",
+        "LikeUnlikeCard",
+        new Error()
+    );
 
     try {
         const card = await likeCard(cardId, userId);
@@ -156,7 +157,7 @@ router.patch("/:id", auth, async (req, res) => {
 
 router.delete("/:id", auth, async (req, res) => {
     const cardId = req.params.id;
-    Log.delete(location("DeleteCard"), "Delete card request has been received.");
+    RouteLogger.delete("Delete card request has been received.", "DeleteCard", new Error());
 
     try {
         const { _id, isAdmin } = req.user;
