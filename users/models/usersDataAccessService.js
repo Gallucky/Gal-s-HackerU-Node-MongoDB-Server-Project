@@ -85,16 +85,51 @@ exports.login = async (normalizedUser) => {
                 throw new Error("Authentication Error: Invalid Email");
             }
 
+            // Checking if the user is blocked.
+            if (user.blocked) {
+                // Unblocking user after 24 hours.
+                const BLOCK_DURATION_HOURS = 24;
+                const now = new Date();
+                if (
+                    user.lastBlockedAt &&
+                    now - user.lastBlockedAt > BLOCK_DURATION_HOURS * 60 * 60 * 1000
+                ) {
+                    user.blocked = false;
+                    user.strikes = 0;
+                    await user.save();
+                } else {
+                    const error = new Error("The user is blocked. Try again later.");
+                    error.status = 403;
+                    throw error;
+                }
+            }
+
             const validPassword = comparePassword(password, user.password);
 
             if (!validPassword) {
+                // Add strike.
+                user.strikes = (user.strikes || 0) + 1;
+
+                // If the strikes is equal or greater than the threshold then blocking the user.
+                const STRIKES_THRESHOLD = 3;
+                if (user.strikes >= STRIKES_THRESHOLD) {
+                    user.blocked = true;
+                    user.lastBlockedAt = new Date();
+                }
+
+                await user.save();
+
                 throw new Error("Authentication Error: Invalid Password");
+            } else {
+                // Resetting strikes on successful login!
+                user.strikes = 0;
+                await user.save();
             }
 
             const token = generateAuthToken(user);
             return Promise.resolve(token);
         } catch (error) {
-            error.status = 404;
+            error.status = error.status || 404;
             return handleBadRequest("Mongoose", error);
         }
     }

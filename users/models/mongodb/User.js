@@ -25,6 +25,18 @@ const UserSchema = new mongoose.Schema({
         default: false,
     },
     createdAt: CREATED_AT,
+    blocked: {
+        type: Boolean,
+        default: false,
+    },
+    strikes: {
+        type: Number,
+        default: 0,
+    },
+    lastBlockedAt: {
+        type: Date,
+        default: null,
+    },
 });
 
 const User = mongoose.model("Users", UserSchema);
