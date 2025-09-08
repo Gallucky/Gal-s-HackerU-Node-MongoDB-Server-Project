@@ -160,6 +160,7 @@ exports.like = async (cardId, userId) => {
     return Promise.resolve("card updated!");
 };
 
+// Regenerates the card's bizNumber.
 exports.updateBizNumber = async (cardId) => {
     if (DB === "MONGODB") {
         try {

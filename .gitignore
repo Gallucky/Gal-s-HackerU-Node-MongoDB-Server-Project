@@ -13,3 +13,6 @@ config/
 # === Logs ===
 eslint-report.log
 *.log
+
+# === Tests ===
+test/
