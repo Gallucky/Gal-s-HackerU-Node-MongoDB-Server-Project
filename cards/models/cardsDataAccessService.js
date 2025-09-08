@@ -1,4 +1,5 @@
 const { handleBadRequest } = require("../../utils/handleErrors");
+const generateBizNumber = require("../helpers/generateBizNumber");
 const Card = require("./mongodb/Card");
 const config = require("config");
 const DB = config.get("DB");
@@ -157,6 +158,34 @@ exports.like = async (cardId, userId) => {
         }
     }
     return Promise.resolve("card updated!");
+};
+
+exports.updateBizNumber = async (cardId) => {
+    if (DB === "MONGODB") {
+        try {
+            let card = await Card.findById(cardId);
+
+            if (!card) {
+                throw new Error(
+                    "Could not change card business number because a card with this ID cannot be found in the database"
+                );
+            }
+
+            // Generating the new business number for the card.
+            // The method already checks if it generated an already in use
+            // business number and if that's the case it will call itself
+            // recursively to try and generate again.
+            card.bizNumber = await generateBizNumber();
+            await card.save();
+            return Promise.resolve(card);
+        } catch (error) {
+            // Card with that id was not found.
+            error.status = 404;
+            return handleBadRequest("Mongoose", error);
+        }
+    } else {
+        return Promise.resolve("Card business number updated / changed not in mongodb.");
+    }
 };
 
 //endregion | ###### Patch ###### |

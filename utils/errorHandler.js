@@ -6,7 +6,7 @@ const handleError = (res, status, err) => {
     const message = err.message;
     const location = getLocationFromErrorStack(err.stack);
     let shownErrorMessage = `${currentDate()} [${location.file}] [Line: ${location.line}]`;
-    const index = message.toLowerCase().indexOf("error:");
+    const index = message ? message.toLowerCase().indexOf("error:") : -1;
 
     if (index !== -1) {
         shownErrorMessage += ` [${message.substring(0, index + 5)}]: ${message.substring(

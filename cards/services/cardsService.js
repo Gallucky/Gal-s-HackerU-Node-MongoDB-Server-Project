@@ -6,6 +6,7 @@ const {
     update,
     like,
     remove,
+    updateBizNumber,
 } = require("../models/cardsDataAccessService");
 const validateCard = require("../validations/cardValidationService");
 const normalizeCard = require("../helpers/normalizeCard");
@@ -92,6 +93,15 @@ exports.updateCard = async (cardId, rawCard) => {
 exports.likeCard = async (cardId, userID) => {
     try {
         const card = await like(cardId, userID);
+        return Promise.resolve(card);
+    } catch (error) {
+        return Promise.reject(error);
+    }
+};
+
+exports.changeBizNumber = async (cardId) => {
+    try {
+        const card = await updateBizNumber(cardId);
         return Promise.resolve(card);
     } catch (error) {
         return Promise.reject(error);

@@ -9,6 +9,7 @@ const {
     updateCard,
     likeCard,
     deleteCard,
+    changeBizNumber,
 } = require("../services/cardsService");
 const { auth } = require("../../auth/authService");
 const RouteLogger = require("../../logger/loggers/customLogger");
@@ -135,8 +136,6 @@ router.put("/:id", auth, async (req, res) => {
 //region | ------ Patch ------ |
 
 router.patch("/:id", auth, async (req, res) => {
-    const cardId = req.params.id;
-    const userId = req.user._id;
     RouteLogger.patch(
         "A like or unlike a card request has been received.",
         "LikeUnlikeCard",
@@ -144,7 +143,35 @@ router.patch("/:id", auth, async (req, res) => {
     );
 
     try {
+        const cardId = req.params.id;
+        const userId = req.user._id;
         const card = await likeCard(cardId, userId);
+        res.send(card);
+    } catch (error) {
+        return handleError(res, error.status || 500, error);
+    }
+});
+
+router.patch("/change-business-number/:id", auth, async (req, res) => {
+    RouteLogger.patch(
+        "Change card's business number has been received.",
+        "ChangeCardBusinessNumber",
+        new Error()
+    );
+
+    try {
+        const cardId = req.params.id;
+        const { isAdmin } = req.user;
+
+        if (!isAdmin) {
+            const error = new Error(
+                "Authorization Error: Access Denied - Only admin users can generate a new business number for a card."
+            );
+            error.status = 403;
+            throw error;
+        }
+
+        const card = await changeBizNumber(cardId);
         res.send(card);
     } catch (error) {
         return handleError(res, error.status || 500, error);
