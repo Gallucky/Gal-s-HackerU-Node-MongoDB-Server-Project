@@ -74,8 +74,18 @@ utils/                   # Utility functions (error handling, formatting, etc.)
 
 ## Environment Configuration
 
--   `config/default.json`, `config/development.json`, `config/production.json`  
-    Configure MongoDB URIs, JWT secrets, and other environment-specific settings here.
+This project uses the [`config`](https://www.npmjs.com/package/config) library to manage environment-specific settings for production and development.  
+You must manually add or edit the following files in the `config/` directory before running the project:
+
+-   `config/default.json`
+-   `config/development.json`
+-   `config/production.json`
+
+These files should include properties such as your MongoDB connection URI, JWT secret, and any other environment-specific settings required by the application.
+
+**Note:**  
+The project will not run correctly without proper configuration in these files.  
+Refer to the [`config` documentation](https://www.npmjs.com/package/config) for more details on how to structure these files.
 
 ---
 
